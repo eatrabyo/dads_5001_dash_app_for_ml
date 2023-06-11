@@ -7,13 +7,14 @@ import numpy as np
 from dash.dependencies import Input, Output
 from sklearn.datasets import make_classification
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import roc_curve, auc, confusion_matrix, accuracy_score
+from sklearn.metrics import roc_curve, auc, confusion_matrix, accuracy_score, precision_score, recall_score
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.neural_network import MLPClassifier
+import dash_daq as daq
 
 # dataset
 X, y = make_classification(n_samples=1000, n_features=10, random_state=42)
@@ -58,17 +59,21 @@ app.layout = html.Div([
                 {'label': '5', 'value': 5}
             ],
             value=2
-        )
+        ),
+        html.Div(id='dataset-status', style={'margin-top': '20px'}),
+        html.Div(id='model-status', style={'margin-top': '20px'})
     ], style={'width': '50%', 'margin': 'auto'}),
     html.Div(id='roc-container', style={'width': '80%', 'margin': 'auto'}),
     html.Div(id='accuracy-output', style={'text-align': 'center', 'margin-top': '20px'})
 ])
 
 
-# part call back
+# Part callback
 @app.callback(
     [Output('roc-container', 'children'),
-     Output('accuracy-output', 'children')],
+     Output('accuracy-output', 'children'),
+     Output('dataset-status', 'children'),
+     Output('model-status', 'children')],
     [Input('model-selector', 'value'),
      Input('test-size-slider', 'value'),
      Input('num-splits-dropdown', 'value')]
@@ -77,12 +82,12 @@ def update_graphs(selected_models, test_size, num_splits):
     # Split the dataset into training and testing sets
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=42)
 
-    # prepare variable to store value
+    # Prepare variable to store value
     best_model = None
     best_accuracy = 0.0
     best_model_name = ""
 
-    # Dict of models 
+    # Dict of models
     models = {
         'Logistic Regression': LogisticRegression(),
         'Random Forest': RandomForestClassifier(n_estimators=100),
@@ -92,8 +97,25 @@ def update_graphs(selected_models, test_size, num_splits):
         'Neural Network': MLPClassifier()
     }
 
-    # prepare variable to model accuracy -> later for graph use
-    model_accuracies = []
+    # Prepare variable for dataset status
+    dataset_status = [
+        daq.LEDDisplay(
+            label="Number of Records",
+            value=str(X.shape[0])
+        ),
+        daq.LEDDisplay(
+            label="Number of Training Dataset",
+            value=str(X_train.shape[0])
+        ),
+        daq.LEDDisplay(
+            label="Number of Testing Dataset",
+            value=str(X_test.shape[0])
+        ),
+        daq.LEDDisplay(
+            label="Number of Categories",
+            value=str(np.unique(y).shape[0])
+        )
+    ]
 
     # Iterate through selected models
     for model_name in selected_models:
@@ -129,14 +151,13 @@ def update_graphs(selected_models, test_size, num_splits):
             best_accuracy = train_accuracy
             best_model_name = model_name
 
-        # Append model accuracies to the list
-        model_accuracies.append((model_name, train_accuracy, validate_accuracy))
-
     # Make predictions on the test set using the best model
     y_pred = best_model.predict(X_test)
 
-    # Calculate accuracy on the test set
+    # Calculate accuracy, precision, recall on the test set
     test_accuracy = accuracy_score(y_test, y_pred)
+    precision = precision_score(y_test, y_pred)
+    recall = recall_score(y_test, y_pred)
 
     # Create ROC curve data for the best model
     fpr, tpr, _ = roc_curve(y_test, best_model.predict_proba(X_test)[:, 1])
@@ -153,10 +174,10 @@ def update_graphs(selected_models, test_size, num_splits):
     )
 
     # Create performance bar graph
-    model_names = [m[0] for m in model_accuracies]
-    train_scores = [m[1] for m in model_accuracies]
-    validate_scores = [m[2] for m in model_accuracies]
-    test_scores = [test_accuracy] * len(model_accuracies)
+    model_names = [m for m in selected_models]
+    train_scores = [train_accuracy] * len(selected_models)
+    validate_scores = [validate_accuracy] * len(selected_models)
+    test_scores = [test_accuracy] * len(selected_models)
 
     performance_graph = go.Figure()
     performance_graph.add_trace(go.Bar(x=model_names, y=train_scores, name='Train Score'))
@@ -169,6 +190,26 @@ def update_graphs(selected_models, test_size, num_splits):
         barmode='group'
     )
 
+    # Create model status
+    model_status = [
+        daq.LEDDisplay(
+            label="Precision",
+            value=f"{precision:.2f}"
+        ),
+        daq.LEDDisplay(
+            label="Recall",
+            value=f"{recall:.2f}"
+        ),
+        daq.LEDDisplay(
+            label="Accuracy Score",
+            value=f"{test_accuracy:.2f}"
+        ),
+        daq.LEDDisplay(
+            label="AUC",
+            value=f"{roc_auc:.2f}"
+        )
+    ]
+
     # Create accuracy output
     accuracy_output = [
         html.H3(f'Best Model: {best_model_name}'),
@@ -177,8 +218,8 @@ def update_graphs(selected_models, test_size, num_splits):
         html.P(f'Test Score: {test_accuracy:.2f}')
     ]
 
-    # Return the ROC curve figure and accuracy output
-    return [dcc.Graph(figure=roc_fig), dcc.Graph(figure=performance_graph)], accuracy_output
+    # Return the ROC curve figure, accuracy output, dataset status, and model status
+    return [dcc.Graph(figure=roc_fig), dcc.Graph(figure=performance_graph)], accuracy_output, dataset_status, model_status
 
 
 # Run the app
