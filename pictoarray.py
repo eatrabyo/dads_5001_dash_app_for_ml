@@ -1,4 +1,4 @@
-from data_prepare_func import detect_and_crop_handwriting,convert_to_array
+from data_prepare_func import detect_and_crop_handwriting, convert_to_array
 import numpy as np
 
 # X_train,y_train = convert_to_array('data_train',28)
@@ -10,10 +10,13 @@ import numpy as np
 # np.savetxt("y_test.csv", y_test, fmt='%d')
 
 
-#use this instead. I want to keep x and y without splitting
+# use this instead. I want to keep x and y without splitting
 # so we can later manipulate proportion of split
-X,y = convert_to_array('data_train',28)
+x_kit, y_kit = convert_to_array('data_fr_kittinan/', 28)
+x_diy, y_diy = convert_to_array('data_writing_diy', 28)
+
+X = np.append(x_kit, x_diy, axis=0)
+y = np.append(y_kit, y_diy, axis=0)
 
 np.savetxt("X.csv", X, delimiter=",", fmt='%d')
 np.savetxt("y.csv", y, fmt='%d')
-
