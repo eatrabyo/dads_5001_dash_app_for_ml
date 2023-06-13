@@ -449,7 +449,6 @@ def update_graphs(selected_models, test_size, num_splits):
     )
 ]
 
-
     # Return the graph components as the outputs of the callback
 
     return [
@@ -460,7 +459,6 @@ def update_graphs(selected_models, test_size, num_splits):
         html.Div(dcc.Graph(figure=performance_graph))
         
     ]
-
 
 # Run the application
 if __name__ == '__main__':
