@@ -2,9 +2,11 @@ import cv2
 import os
 import numpy as np
 
+
 def detect_and_crop_handwriting(image):
     _, binary = cv2.threshold(image, 127, 255, cv2.THRESH_BINARY_INV)
-    contours, _ = cv2.findContours(binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    contours, _ = cv2.findContours(
+        binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     height, width = image.shape[:2]
     center_x = width // 2
     center_y = height // 2
@@ -50,20 +52,15 @@ def detect_and_crop_handwriting(image):
 
         cropped_image = image[y:y + h, x:x + w]
 
-        # resized_image = cv2.resize(cropped_image, (300, 300))
-
-        # resized_gray = cv2.cvtColor(resized_image, cv2.COLOR_BGR2GRAY)
-
-        # resized_gray = resized_gray.reshape((28, 28, 1))
-
         return cropped_image
 
     else:
         print('No handwriting detected in the image.')
         return None
 
-def convert_to_array(data_path,size):
-    folders = ['0','1','2','3','4','5','6','7','8','9']
+
+def convert_to_array(data_path, size):
+    folders = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
     X, y = [], []
     kernel = np.ones((5, 5), np.uint8)
     for folder in folders:
@@ -74,15 +71,12 @@ def convert_to_array(data_path,size):
             image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
             image = cv2.dilate(image, kernel, iterations=1)
             image = detect_and_crop_handwriting(image)
-            image = cv2.resize(image, (size, size))  # Resize the image to 28x28 pixels
-            X.append(image.flatten())  # Flatten the image and add it to the feature matrix
+            # Resize the image to 28x28 pixels
+            image = cv2.resize(image, (size, size))
+            # Flatten the image and add it to the feature matrix
+            X.append(image.flatten())
             y.append(int(folder))  # Add the corresponding label
 
     X_data = np.array(X)
     y_data = np.array(y)
-    return X_data,y_data
-
-
-# data = pickle.load(open("thainumber_{}.pkl".format(size), "rb"))
-# X = data['X']
-# Y = data['Y']
+    return X_data, y_data
