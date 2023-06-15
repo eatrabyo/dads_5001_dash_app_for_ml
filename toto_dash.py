@@ -276,6 +276,15 @@ def update_graphs(selected_models, test_size, num_splits):
 
     ))
 
+    # add annotated in diagonal
+    for i in range(len(cm)):
+        cm_fig.add_annotation(
+            x=i, y=i,
+            text=str(cm[i][i]),
+            showarrow=False,
+            font=dict(color='white' if cm[i][i] < 0.5 else 'black')
+    )
+
     cm_fig.update_layout(
     # title='Confusion Matrix',
     xaxis=dict(
