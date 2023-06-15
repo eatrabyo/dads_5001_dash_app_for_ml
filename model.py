@@ -69,9 +69,9 @@ def pipe_setup(model_name):
         return pipe_xg
 
 
-def fit_model(model, x, y):
+def fit_model(model, x, y, num_split, test_size):
     x_train, x_test, y_train, y_test = train_test_split(
-        x, y, test_size=0.3, random_state=42, stratify=y)
+        x, y, test_size=test_size, random_state=42, stratify=y)
 
     model.fit(x_train, y_train)
 
@@ -82,11 +82,11 @@ def fit_model(model, x, y):
     test_accuracy = accuracy_score(test_yhat, y_test)
 
     cv_accuracy = cross_val_score(
-        model, x_train, y_train, scoring='accuracy', cv=5)
+        model, x_train, y_train, scoring='accuracy', cv=num_split)
 
     cm = confusion_matrix(y_test, test_yhat)
 
-    return train_accuracy, test_accuracy, cv_accuracy, cm
+    return model, train_accuracy, test_accuracy, cv_accuracy, cm, x_train, x_test, y_train, y_test
 
 
 if __name__ == '__main__':
@@ -106,15 +106,16 @@ if __name__ == '__main__':
 
     for m in model_lst:
         clf = pipe_setup(m)
-        train_ac, test_ac, cv_ac, cm = fit_model(clf, X, y)
+        fitted_model, train_ac, test_ac, cv_ac, cm, x_train, x_test, y_train, y_test = fit_model(
+            clf, X, y, 5, 0.3)
 
         if train_ac > best_accuracy:
-            best_model = clf
+            best_model = fitted_model
             best_accuracy = train_ac
             best_model_name = m
             best_cm = cm
 
-        model_accuracies.append((m, train_ac, cv_ac))
+        model_accuracies.append((m, train_ac, cv_ac, test_ac))
 
     print(model_accuracies)
     print(model_accuracies[0])
