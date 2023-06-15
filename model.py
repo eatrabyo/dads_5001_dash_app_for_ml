@@ -1,15 +1,13 @@
 import pandas as pd
 import numpy as np
-
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
-from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.ensemble import RandomForestClassifier, ExtraTreesClassifier
 from sklearn.neural_network import MLPClassifier
-from sklearn.metrics import precision_score, recall_score
 from xgboost import XGBClassifier
-from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+from sklearn.model_selection import train_test_split, cross_val_score
+from sklearn.pipeline import Pipeline
 
 from data_prepare_func import convert_to_array
 
@@ -62,7 +60,11 @@ def pipe_setup(model_name):
             ('scaler', StandardScaler()),
             ('classifier', XGBClassifier())])
 
-        # pipe_xg.set_params()
+        pipe_xg.set_params(
+            classifier__max_depth=4, classifier__learning_rate=0.001, classifier__gamma=0, classifier__reg_alpha=1,
+            classifier__reg_lambda=1, classifier__colsample_bytree=0.5, classifier__subsample=0.7,
+            classifier__tree_method='hist', classifier__n_estimators=140, classifier__eval_metric='merror',
+            classifier__colsample_bylevel=0.5, classifier__colsample_bynode=0.5)
 
         return pipe_xg
 
@@ -114,6 +116,7 @@ if __name__ == '__main__':
 
         model_accuracies.append((m, train_ac, cv_ac))
 
+    print(model_accuracies)
     print(model_accuracies[0])
     print(model_accuracies[0][0])
     print(model_accuracies[0][1])
