@@ -15,7 +15,7 @@ from model_maiedited import pipe_setup, fit_model
 from data_prepare_func import convert_to_array
 from bar_graph import bar_graph
 from confusion_matrix_fig import confusion_matrix_fig
-from classification_report_heat import get_classification_report
+from classification_report_heat import classification_fig, get_classification_report
 import seaborn as sns
 
 # dataset
@@ -95,15 +95,15 @@ content2 = html.Div(
         html.Hr(),
         html.H5("Confusion metrics"),
         html.Hr(),
-        html.Div(id='cm-container', style={'margin-top': '20px'}),
-        html.Hr(),
+        html.Div(id='cm-container', style={'margin-top': '5px'}),
+        # html.Hr(),
         # html.H5("Classification report"),
         # html.Hr(),
-        # html.Div(id='class-container', style={'margin-top': '20px'}),
-        # html.Hr(),
+        # html.Div(id='class-container', style={'margin-top': '5px'}),
+        html.Hr(),
         html.H5("Model Performance (Accuracy score):"),
         html.Hr(),
-        html.Div(id='accuracy-output', style={'margin-top': '20px'})
+        html.Div(id='accuracy-output', style={'margin-top': '5px'})
     ],
     style={'background-color': 'white', 'padding': '10px'}
 )
@@ -154,10 +154,6 @@ def update_graphs(selected_model, test_size, num_splits):
     best_model_name = ""
     best_cm = ""
     model_accuracies = []
-
-    # Dict of models
-    # model_lst = ['XGB Classifier', 'Logistic Regression',
-    #              'Random Forest', 'Neural Network', 'Extra Trees Classifier']
     
     # Iterate through selected models
     for m in selected_model:
@@ -165,32 +161,23 @@ def update_graphs(selected_model, test_size, num_splits):
         fitted_model, train_ac, test_ac, cv_ac, cm, X_train, X_test, y_train, y_test,train_yhat, test_yhat = fit_model(
             clf, X, y, num_splits, test_size)
 
-        # if train_ac > best_accuracy:
-        #     best_model = fitted_model
-        #     best_accuracy = train_ac
-        #     best_model_name = m
-        #     best_cm = cm
-
         if train_ac > best_accuracy:
             best_model = fitted_model
-            best_accuracy_train = train_ac
+            best_accuracy = train_ac
+            best_model_name = m
+            best_cm = cm
             best_accuracy_cv = cv_ac
             mean_best_accuracy_cv = sum(best_accuracy_cv)/len(best_accuracy_cv)
             best_accuracy_test = test_ac
-            best_model_name = m
-            best_cm = cm
 
-   
+       
 
     # append model accuracy (further use as an input for cm, classification report, model performance)
         model_accuracies.append((m, train_ac, cv_ac, test_ac))
 
     performance_graph = bar_graph(model_accuracies)
     cm_fig = confusion_matrix_fig(best_cm)
-    
-    # report_df = get_classification_report(y_test, test_yhat)
-    # report_df = report_df.iloc[0:10, 0:3]
-    # class_fig = sns.heatmap(report_df, annot=True, fmt=".2f")
+    # class_fig = classification_fig(y_test, test_yhat)
 
     # Prepare variable for dataset status
     dataset_status = [
@@ -244,15 +231,14 @@ def update_graphs(selected_model, test_size, num_splits):
         [
     html.H6(f'Best Model: {best_model_name}'),
     html.H6(f'Accuracy score of the best model:'),
-    # html.P(f'Validation Score: {validate_accuracy:.2f}'),
-    # html.P(f'Test Score: {test_accuracy:.2f}')
+
         ]),
     dbc.Row(
         [
             dbc.Col(
                 daq.LEDDisplay(
                     label="Train Score",
-                    value=f"{best_accuracy_train:.2f}",
+                    value=f"{best_accuracy:.2f}",
                     style={'font-size': '15px'}
                 ),
                 width=6
@@ -296,7 +282,7 @@ def update_graphs(selected_model, test_size, num_splits):
         html.Div(dataset_status),
         html.Div(model_status),
         html.Div(dcc.Graph(figure=cm_fig)),
-        #html.Div(dcc.Graph(figure=class_fig)),
+        # html.Div(dcc.Graph(figure=class_fig)),
         html.Div(dcc.Graph(figure=performance_graph))
         
     ]
