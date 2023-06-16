@@ -104,6 +104,7 @@ def update_output(contents, filename):
             f.write(decoded_image)
 
         # convert to array
+        lst = []
         nparr = np.frombuffer(decoded_image, np.uint8)
         img = cv2.imdecode(nparr, cv2.IMREAD_GRAYSCALE)
         print(img)
@@ -112,11 +113,12 @@ def update_output(contents, filename):
         img = cv2.dilate(img, kernel, iterations=1)
         img = detect_and_crop_handwriting(img)
         img = cv2.resize(img, (28, 28))
-        img = img.flatten()
+        lst.append(img.flatten())
+        lst = np.array(lst)
         # cv2.imshow('window',img)
         # cv2.waitKey(0)
-        print(img.shape)
-        print(img)
+        print(lst.shape)
+        print(lst)
 
         # แสดงภาพที่อัพโหลด
         return html.Div([
