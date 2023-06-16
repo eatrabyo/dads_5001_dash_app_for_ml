@@ -17,6 +17,9 @@ from bar_graph import bar_graph
 from confusion_matrix_fig import confusion_matrix_fig
 from classification_report_heat import classification_fig, get_classification_report
 import seaborn as sns
+import base64
+from dash.dependencies import Input, Output, State
+import cv2
 
 # dataset
 # if __name__ == '__main__':
@@ -32,7 +35,35 @@ app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 
 # Sidebar layout
 sidebar = html.Div(
-    [
+    [   
+        html.Hr(),
+        html.H5("Predict your digit handwritting", style={'margin-top': '20px'}),
+        html.Hr(),
+        html.Div(children=[
+        dcc.Upload(
+            id='upload-image',
+            children=html.Div([
+                'Drag and Drop or ',
+            html.A('Select Files')
+            ]),
+            style={
+                'width': '95%',
+                'height': '100px',
+                'lineHeight': '100px',
+                'borderWidth': '1px',
+                'borderStyle': 'dashed',
+                'borderRadius': '5px',
+                'textAlign': 'center',
+                'margin': '10px'
+            },
+            # Allow multiple files to be uploaded
+            multiple=False
+        ),
+        html.Div(id='output-image')
+        ]),
+
+        html.Hr(),
+        html.Div(id='Predict-from-pic', style={'margin-top': '20px'}),
         html.Hr(),
         html.H5("Classification Model Simulator", style={'margin-top': '20px'}),
         html.Hr(),
@@ -93,7 +124,7 @@ content1 = html.Div(
 content2 = html.Div(
     [
         html.Hr(),
-        html.H5("Confusion metrics"),
+        html.H5("Confusion matrix"),
         html.Hr(),
         html.Div(id='cm-container', style={'margin-top': '5px'}),
         # html.Hr(),
@@ -122,6 +153,13 @@ app.layout = dbc.Container(
 
         dbc.Row(
             [
+            # html.H1('Dash Image Example'),
+            html.Img(src='/Users/nattasorn/Documents/5001_digit/dads_5001_dash_app_for_ml/Thainum.png', alt='Image')
+            ]
+                ),
+
+        dbc.Row(
+            [
                 dbc.Col(sidebar, width=3),
                 dbc.Col(content1, width=3),
                 dbc.Col(content2, width=6),
@@ -131,6 +169,33 @@ app.layout = dbc.Container(
 )
 
 
+@app.callback(Output('output-image', 'children'),
+              Input('upload-image', 'contents'),
+              State('upload-image', 'filename'))
+def update_output(contents, filename):
+    if contents is not None:
+        # ดึงข้อมูลรูปภาพจาก base64
+        image_data = contents.split(',')[1]
+        decoded_image = base64.b64decode(image_data)
+
+        # บันทึกรูปภาพเป็นไฟล์ PNG
+        with open(filename, 'wb') as f:
+            f.write(decoded_image)
+
+        # convert to array
+        nparr = np.frombuffer(decoded_image, np.uint8)
+        img = cv2.imdecode(nparr, cv2.IMREAD_GRAYSCALE)
+        print(img)
+        print(img.shape)
+
+        # แสดงภาพที่อัพโหลด
+        return html.Div([
+            html.H5(f'Filename: {filename}'),
+            html.Img(src=contents)
+        ])
+    else:
+        return None
+
 @app.callback(
     [
         Output('dataset-status', 'children'),
@@ -138,6 +203,7 @@ app.layout = dbc.Container(
         Output('cm-container', 'children'),
         # Output('class-container', 'children'),
         Output('accuracy-output', 'children'),
+        Output('Predict-from-pic', 'children')
     ],
     [
         Input('model-selector', 'value'),
@@ -275,7 +341,14 @@ def update_graphs(selected_model, test_size, num_splits):
         ],
         className="mb-3"
     )]
-    
+
+    ## ทำรอผลจาก รูปเข้าโมเดล
+    predict_result = []
+    predict_from_pic = [
+    dbc.Row([
+    html.H6(f'predicted value: {predict_result}')]
+    )]
+
     # Return the graph components as the outputs of the callback
 
     return [
@@ -283,7 +356,8 @@ def update_graphs(selected_model, test_size, num_splits):
         html.Div(model_status),
         html.Div(dcc.Graph(figure=cm_fig)),
         # html.Div(dcc.Graph(figure=class_fig)),
-        html.Div(dcc.Graph(figure=performance_graph))
+        html.Div(dcc.Graph(figure=performance_graph)),
+        html.Div(predict_from_pic)
         
     ]
 
