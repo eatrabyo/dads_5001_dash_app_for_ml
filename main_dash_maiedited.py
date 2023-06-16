@@ -8,25 +8,15 @@ import plotly.graph_objects as go
 import pandas as pd
 import numpy as np
 from dash.dependencies import Input, Output
-from sklearn.datasets import make_classification
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import roc_curve, auc, confusion_matrix, accuracy_score
-from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.svm import SVC
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.neural_network import MLPClassifier
-from sklearn.metrics import precision_score, recall_score
+from sklearn.metrics import confusion_matrix
 import dash_daq as daq
-from sklearn.metrics import multilabel_confusion_matrix
-from sklearn.metrics import classification_report
 from sklearn import metrics
-from model import pipe_setup, fit_model
+from model_maiedited import pipe_setup, fit_model
 from data_prepare_func import convert_to_array
 from bar_graph import bar_graph
-from confusion_matrix import confusion_matrix
-## รอ function ครับผม
+from confusion_matrix_fig import confusion_matrix_fig
+from classification_report_heat import get_classification_report
+import seaborn as sns
 
 # dataset
 # if __name__ == '__main__':
@@ -50,13 +40,13 @@ sidebar = html.Div(
         dcc.Checklist(
             id='model-selector',
             options=[
-                {'label': 'XGB Classifier', 'value': 'XGB Classifier'},
-                {'label': 'Logistic Regression', 'value': 'Logistic Regression'},
-                {'label': 'Random Forest', 'value': 'Random Forest'},
                 {'label': 'Neural Network', 'value': 'Neural Network'},
+                {'label': 'Random Forest', 'value': 'Random Forest'},
+                {'label': 'Logistic Regression', 'value': 'Logistic Regression'},
                 {'label': 'Extra Trees Classifier', 'value': 'Extra Trees Classifier'},
+                {'label': 'XGB Classifier', 'value': 'XGB Classifier'},
             ],
-            value=['XGB Classifier', 'Logistic Regression','Random Forest', 'Neural Network', 'Extra Trees Classifier'],
+            value=['Neural Network','Logistic Regression','XGB Classifier' ],
             labelStyle={'display': 'block'}
         ),
         html.P("Test Set Size:", style={'background-color': 'lightgray'}),
@@ -105,10 +95,12 @@ content2 = html.Div(
         html.Hr(),
         html.H5("Confusion metrics"),
         html.Hr(),
-        # html.Div(id='classification-report', style={'margin-top': '20px'}),
-        # html.Div(id='roc-container', style={'margin-top': '20px'}),
         html.Div(id='cm-container', style={'margin-top': '20px'}),
         html.Hr(),
+        # html.H5("Classification report"),
+        # html.Hr(),
+        # html.Div(id='class-container', style={'margin-top': '20px'}),
+        # html.Hr(),
         html.H5("Model Performance (Accuracy score):"),
         html.Hr(),
         html.Div(id='accuracy-output', style={'margin-top': '20px'})
@@ -144,6 +136,7 @@ app.layout = dbc.Container(
         Output('dataset-status', 'children'),
         Output('model-status', 'children'),
         Output('cm-container', 'children'),
+        # Output('class-container', 'children'),
         Output('accuracy-output', 'children'),
     ],
     [
@@ -152,9 +145,8 @@ app.layout = dbc.Container(
         Input('num-splits-dropdown', 'value')
     ]
 )
-def update_graphs(selected_models, test_size, num_splits):
+def update_graphs(selected_model, test_size, num_splits):
     # Split the dataset into training and testing sets
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=42)
 
     # Prepare variable to store value
     best_model = None
@@ -164,34 +156,41 @@ def update_graphs(selected_models, test_size, num_splits):
     model_accuracies = []
 
     # Dict of models
-    model_lst = ['XGB Classifier', 'Logistic Regression',
-                 'Random Forest', 'Neural Network', 'Extra Trees Classifier']
+    # model_lst = ['XGB Classifier', 'Logistic Regression',
+    #              'Random Forest', 'Neural Network', 'Extra Trees Classifier']
     
     # Iterate through selected models
-    for m in model_lst:
+    for m in selected_model:
         clf = pipe_setup(m)
-        fitted_model, train_ac, test_ac, cv_ac, cm, x_train, x_test, y_train, y_test = fit_model(
+        fitted_model, train_ac, test_ac, cv_ac, cm, X_train, X_test, y_train, y_test,train_yhat, test_yhat = fit_model(
             clf, X, y, num_splits, test_size)
+
+        # if train_ac > best_accuracy:
+        #     best_model = fitted_model
+        #     best_accuracy = train_ac
+        #     best_model_name = m
+        #     best_cm = cm
 
         if train_ac > best_accuracy:
             best_model = fitted_model
-            best_accuracy = train_ac
+            best_accuracy_train = train_ac
+            best_accuracy_cv = cv_ac
+            mean_best_accuracy_cv = sum(best_accuracy_cv)/len(best_accuracy_cv)
+            best_accuracy_test = test_ac
             best_model_name = m
             best_cm = cm
-    # append model name 
+
+   
+
+    # append model accuracy (further use as an input for cm, classification report, model performance)
         model_accuracies.append((m, train_ac, cv_ac, test_ac))
 
-    print(model_accuracies)
-    print(model_accuracies[0])
-    print(model_accuracies[0][0])
-    print(model_accuracies[0][1])
-    print(model_accuracies[0][2])
-
-    print(model_lst)
-
-
     performance_graph = bar_graph(model_accuracies)
-    cm_fig = confusion_matrix(best_cm)
+    cm_fig = confusion_matrix_fig(best_cm)
+    
+    # report_df = get_classification_report(y_test, test_yhat)
+    # report_df = report_df.iloc[0:10, 0:3]
+    # class_fig = sns.heatmap(report_df, annot=True, fmt=".2f")
 
     # Prepare variable for dataset status
     dataset_status = [
@@ -244,37 +243,37 @@ def update_graphs(selected_models, test_size, num_splits):
     dbc.Row(
         [
     html.H6(f'Best Model: {best_model_name}'),
-    html.P(f'Train Score: {best_accuracy:.2f}'),
+    html.H6(f'Accuracy score of the best model:'),
     # html.P(f'Validation Score: {validate_accuracy:.2f}'),
     # html.P(f'Test Score: {test_accuracy:.2f}')
         ]),
     dbc.Row(
-        # [
-        #     dbc.Col(
-        #         daq.LEDDisplay(
-        #             label="Precision",
-        #             # value=f"{precision:.2f}",
-        #             style={'font-size': '15px'}
-        #         ),
-        #         width=6
-        #     ),
-        #     dbc.Col(
-        #         daq.LEDDisplay(
-        #             label="Recall",
-        #             # value=f"{recall:.2f}",
-        #             style={'font-size': '15px'}
-        #         ),
-        #         width=6
-        #     )
-        # ],
-        # className="mb-3"
+        [
+            dbc.Col(
+                daq.LEDDisplay(
+                    label="Train Score",
+                    value=f"{best_accuracy_train:.2f}",
+                    style={'font-size': '15px'}
+                ),
+                width=6
+            ),
+            dbc.Col(
+                daq.LEDDisplay(
+                    label="Validation Score",
+                    value=f"{mean_best_accuracy_cv:.2f}",
+                    style={'font-size': '15px'}
+                ),
+                width=6
+            )
+        ],
+        className="mb-3"
     ),
     dbc.Row(
         [
             dbc.Col(
                 daq.LEDDisplay(
-                    label="Accuracy Score",
-                    value=f"{best_accuracy:.2f}",
+                    label=" Test Score",
+                    value=f"{best_accuracy_test:.2f}",
                     style={'font-size': '15px'}
                 ),
                 width=6
@@ -289,21 +288,19 @@ def update_graphs(selected_models, test_size, num_splits):
             # )
         ],
         className="mb-3"
-    )
-]
-
+    )]
+    
     # Return the graph components as the outputs of the callback
 
     return [
         html.Div(dataset_status),
         html.Div(model_status),
-        # html.Div(dcc.Markdown(report)),
         html.Div(dcc.Graph(figure=cm_fig)),
+        #html.Div(dcc.Graph(figure=class_fig)),
         html.Div(dcc.Graph(figure=performance_graph))
         
     ]
 
-# Run the application
+
 if __name__ == '__main__':
     app.run_server(debug=True)
-
