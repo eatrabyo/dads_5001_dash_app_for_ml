@@ -6,7 +6,8 @@ Data source:
   1. kittinan/thai-handwriting-number
   2. Written Thai Number by ourself
 
-# ใส่รูปภาพ ด้วยนะจ๊ะ
+# Sample Web Page
+![image](https://github.com/eatrabyo/dads_5001_dash_app_for_ml/assets/114765725/0ebf15d0-8c32-41d4-8064-76e72b6ac308)
 
 # Component Part
   1. Predict your digit handwritting
@@ -27,10 +28,16 @@ There are 3 options:
   3. Number of Splits : Setting number of K-fold (minimun 2 and maximun 5) for cross validation that is resampling procedure used to evaluate machine learning                             models on a limited data sample.
 
 # 3. Dataset
-pls fill information
+In this part show dataset information
+  1. No. of Record      : Show total number of images in the dataset
+  2. No. of Categories  : Show total number of categories. Maximun is 10 categories (๐ ๑ ๒ ๓ ๔ ๕ ๖ ๗ ๘ ๙)
+  3. No. of Train set   : Show total number of images in train dataset
+  4. No. of Test set    : Show total number of images in test dataset
 
 # 4. Evaluation
-pls fill information
+In this part show evaluate results
+  1. Best Model                       : Show the best model which is the highest train score. Model refer from user selecting model
+  2. Accuracy score of the best model : Show score of best model that are train score, validation score and test score
 
 # 5. Confusion matrix
 pls fill information
