@@ -1,33 +1,19 @@
 import dash
-# import dash_core_components as dcc
-# import dash_html_components as html
 from dash import html
 import dash_bootstrap_components as dbc
 from dash import dcc
-import plotly.graph_objects as go
-import pandas as pd
 import numpy as np
 from dash.dependencies import Input, Output
-from sklearn.metrics import confusion_matrix
 import dash_daq as daq
-from sklearn import metrics
 from model_maiedited import pipe_setup, fit_model
-from data_prepare_func import convert_to_array
 from bar_graph import bar_graph
 from confusion_matrix_fig import confusion_matrix_fig
-from classification_report_heat import classification_fig, get_classification_report
-import seaborn as sns
 import base64
 from dash.dependencies import Input, Output, State
 import cv2
+from data_prepare_func import detect_and_crop_handwriting
 
-# dataset
-# if __name__ == '__main__':
-#     x_kit, y_kit = convert_to_array('data_fr_kittinan/', 28)
-#     x_diy, y_diy = convert_to_array('data_writing_diy/', 28)
-#     X = np.append(x_kit, x_diy, axis=0)
-#     y = np.append(y_kit, y_diy, axis=0)
-
+# Load dataset
 X = np.loadtxt('X.csv', delimiter=',', dtype = 'uint8' )
 y = np.loadtxt('y.csv', delimiter=',', dtype = 'uint8' )
 
@@ -127,10 +113,6 @@ content2 = html.Div(
         html.H5("Confusion matrix"),
         html.Hr(),
         html.Div(id='cm-container', style={'margin-top': '5px'}),
-        # html.Hr(),
-        # html.H5("Classification report"),
-        # html.Hr(),
-        # html.Div(id='class-container', style={'margin-top': '5px'}),
         html.Hr(),
         html.H5("Model Performance (Accuracy score):"),
         html.Hr(),
@@ -139,6 +121,9 @@ content2 = html.Div(
     style={'background-color': 'white', 'padding': '10px'}
 )
 
+# Thainum picture
+thainum_png = 'Thainum.png'
+thainum_base64 = base64.b64encode(open(thainum_png, 'rb').read()).decode('ascii')
 
 # Layout
 app.layout = dbc.Container(
@@ -153,8 +138,7 @@ app.layout = dbc.Container(
 
         dbc.Row(
             [
-            # html.H1('Dash Image Example'),
-            html.Img(src='/Users/nattasorn/Documents/5001_digit/dads_5001_dash_app_for_ml/Thainum.png', alt='Image')
+            html.Img(src='data:image/png;base64,{}'.format(thainum_base64), alt='Image')
             ]
                 ),
 
@@ -201,7 +185,6 @@ def update_output(contents, filename):
         Output('dataset-status', 'children'),
         Output('model-status', 'children'),
         Output('cm-container', 'children'),
-        # Output('class-container', 'children'),
         Output('accuracy-output', 'children'),
         Output('Predict-from-pic', 'children')
     ],
@@ -221,6 +204,10 @@ def update_graphs(selected_model, test_size, num_splits):
     best_cm = ""
     model_accuracies = []
     
+    # check selected model must not be blank
+    if len(selected_model) == 0:
+        selected_model = ['Logistic Regression']
+
     # Iterate through selected models
     for m in selected_model:
         clf = pipe_setup(m)
@@ -330,14 +317,6 @@ def update_graphs(selected_model, test_size, num_splits):
                 ),
                 width=6
             )
-            # dbc.Col(
-            #     daq.LEDDisplay(
-            #         label="AUC",
-            #         value=f"{roc_auc:.2f}",
-            #         style={'font-size': '15px'}
-            #     ),
-            #     width=6
-            # )
         ],
         className="mb-3"
     )]
