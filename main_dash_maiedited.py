@@ -12,6 +12,7 @@ import base64
 from dash.dependencies import Input, Output, State
 import cv2
 from data_prepare_func import detect_and_crop_handwriting
+from classification_report_heat import get_classification_report ,classification_fig
 
 # Load dataset
 X = np.loadtxt('X.csv', delimiter=',', dtype='uint8')
@@ -46,11 +47,10 @@ sidebar = html.Div(
                 # Allow multiple files to be uploaded
                 multiple=False
             ),
+            
+            html.H5(id='Predict-from-pic', style={'margin-top': '20px'}),
             html.Div(id='output-image')
         ]),
-
-        html.Hr(),
-        html.Div(id='Predict-from-pic', style={'margin-top': '20px'}),
         html.Hr(),
         html.H5("Classification Model Simulator",
                 style={'margin-top': '20px'}),
@@ -62,11 +62,10 @@ sidebar = html.Div(
                 {'label': 'Neural Network', 'value': 'Neural Network'},
                 {'label': 'Random Forest', 'value': 'Random Forest'},
                 {'label': 'Logistic Regression', 'value': 'Logistic Regression'},
-                {'label': 'Extra Trees Classifier',
-                    'value': 'Extra Trees Classifier'},
+                {'label': 'Extra Trees Classifier', 'value': 'Extra Trees Classifier'},
                 {'label': 'XGB Classifier', 'value': 'XGB Classifier'},
             ],
-            value=['Neural Network', 'Logistic Regression', 'XGB Classifier'],
+            value=['Logistic Regression'],
             labelStyle={'display': 'block'}
         ),
         html.P("Test Set Size:", style={'background-color': 'lightgray'}),
@@ -104,7 +103,12 @@ content1 = html.Div(
         html.Hr(),
         html.H5("Evaluation:"),
         html.Hr(),
-        html.Div(id='model-status', style={'margin-top': '20px'})
+        html.Div(id='model-status', style={'margin-top': '20px'}),
+        html.Hr(),
+        html.H5("Classification report"),
+        html.Hr(),
+        html.Div(id='class-container', style={'margin-top': '5px'}),
+        
     ],
     style={'background-color': 'white', 'padding': '10px'}
 )
@@ -189,8 +193,8 @@ def update_output(contents, filename):
 
         # แสดงภาพที่อัพโหลด
         return html.Div([
-            html.H5(f'Filename: {filename}'),
-            html.Img(src=contents)
+            html.Img(src=contents),
+            html.Div(f'Filename: {filename}')
         ])
     else:
         return None
@@ -202,7 +206,8 @@ def update_output(contents, filename):
         Output('model-status', 'children'),
         Output('cm-container', 'children'),
         Output('accuracy-output', 'children'),
-        Output('Predict-from-pic', 'children')
+        Output('Predict-from-pic', 'children'),
+        Output('class-container', 'children')
     ],
     [
         Input('model-selector', 'value'),
@@ -265,7 +270,7 @@ def update_graphs(selected_model, test_size, num_splits, new_img):
 
     performance_graph = bar_graph(model_accuracies)
     cm_fig = confusion_matrix_fig(best_cm)
-    # class_fig = classification_fig(y_test, test_yhat)
+    class_fig = classification_fig(y_test, test_yhat)
 
     # Prepare variable for dataset status
     dataset_status = [
@@ -359,7 +364,7 @@ def update_graphs(selected_model, test_size, num_splits, new_img):
     # predict result
     predict_from_pic = [
         dbc.Row([
-            html.H6(f'predicted value: {predict_result}')]
+            html.H5(f'predicted value: {predict_result}')]
         )]
 
     # Return the graph components as the outputs of the callback
@@ -368,9 +373,9 @@ def update_graphs(selected_model, test_size, num_splits, new_img):
         html.Div(dataset_status),
         html.Div(model_status),
         html.Div(dcc.Graph(figure=cm_fig)),
-        # html.Div(dcc.Graph(figure=class_fig)),
         html.Div(dcc.Graph(figure=performance_graph)),
-        html.Div(predict_from_pic)
+        html.Div(predict_from_pic),
+        html.Div(dcc.Graph(figure=class_fig))
 
     ]
 
