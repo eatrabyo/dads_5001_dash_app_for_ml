@@ -3,7 +3,7 @@
 
 # Source data
 Data source:
-  1. https://github.com/kittinan/thai-handwriting-number
+  1. kittinan/thai-handwriting-number
   2. Written Thai Number by ourself
 
 # ใส่รูปภาพ ด้วยนะจ๊ะ
@@ -17,10 +17,14 @@ Data source:
   6. Model Performance (Accuracy score)
 
 # 1. Predict your digit handwritting
-pls fill information
+The fisrt of all component, this one will predict your digit handwritting by upload picture(.png) into Drag and Drop or Select Files.
+Then app will show your image and result on predicted value.
 
 # 2. Classification Model Simulator
-pls fill information
+There are 3 options:
+  1. Select Models    : Use for analyzes data patterns to determine future outcomes which provide 5 model are Neural Network, Random Forest, Logistic Regression,                         Extra Trees Classifier and XGB Classifier
+  2. Test Set Size    : This will be split dataset to train and test size. Able to split test size minimun 0.1 and maximun 0.5
+  3. Number of Splits : Setting number of K-fold (minimun 2 and maximun 5) for cross validation that is resampling procedure used to evaluate machine learning                             models on a limited data sample.
 
 # 3. Dataset
 pls fill information
