@@ -7,7 +7,7 @@ Data source:
   2. Written Thai number by group members
 
 ## Sample Web Page
-![image](https://github.com/eatrabyo/dads_5001_dash_app_for_ml/assets/114765725/0ebf15d0-8c32-41d4-8064-76e72b6ac308)
+<img width="1016" alt="image" src="https://github.com/eatrabyo/dads_5001_dash_app_for_ml/assets/92035314/1fa8aefd-912e-4062-a4cc-506c1e4566fb">
 
 ## Component Part
   1. Predict your digit handwritting
