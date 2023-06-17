@@ -17,35 +17,34 @@ Data source:
   5. Confusion matrix
   6. Model Performance (Accuracy score)
 
-### 1. Predict your digit handwritting
-The fisrt of all component, this one will predict your digit handwritting by upload picture(.png) into Drag and Drop or Select Files.
-Then app will show your image and result on predicted value.
+### 1. Drag and drop new image for prediction
+A drag and drop box is provided for uploading a picture. The picture will be predicted by the best model and the result will be shown under the picture.
 
 <img width="309" alt="image" src="https://github.com/eatrabyo/dads_5001_dash_app_for_ml/assets/92035314/4745acb6-3b6d-477c-aa64-3bc710c9a2cc">
 
 
 ### 2. Classification Model Simulator
 There are 3 options:
-  1. Select Models    : Use for analyzes data patterns to determine future outcomes which provide 5 model are Neural Network, Random Forest, Logistic Regression,                         Extra Trees Classifier and XGB Classifier
-  2. Test Set Size    : This will be split dataset to train and test size. Able to split test size minimun 0.1 and maximun 0.5
-  3. Number of Splits : Setting number of K-fold (minimun 2 and maximun 5) for cross validation that is resampling procedure used to evaluate machine learning                             models on a limited data sample.
+  1. Select Models    : Use for analyze data patterns to determine future outcomes which provide 5 model are Neural Network, Random Forest, Logistic Regression,                         Extra Trees Classifier and XGB Classifier.
+  2. Test Set Size    : This will split the dataset into training and testing sets. Users can specify the split size, with a minimum value of 0.1 and a maximum value of 0.5.
+  3. Number of Splits : Set the number of K-fold cross-validation, which is a resampling procedure used to evaluate machine learning models on a limited data sample. The number of folds can be set between a minimum of 2 and a maximum of 5.
 
 <img width="305" alt="image" src="https://github.com/eatrabyo/dads_5001_dash_app_for_ml/assets/92035314/de3a7402-f449-4af8-b83e-c8d8d7ec44f1">
 
 
 ### 3. Dataset
 In this part show dataset information
-  1. No. of Record      : Show total number of images in the dataset
-  2. No. of Categories  : Show total number of categories. Maximun is 10 categories (๐ ๑ ๒ ๓ ๔ ๕ ๖ ๗ ๘ ๙)
-  3. No. of Train set   : Show total number of images in train dataset
-  4. No. of Test set    : Show total number of images in test dataset
+  1. No. of Record      : Show total number of images in the dataset.
+  2. No. of Categories  : Show total number of categories. Maximun is 10 categories (๐ ๑ ๒ ๓ ๔ ๕ ๖ ๗ ๘ ๙).
+  3. No. of Train set   : Show total number of images in train dataset.
+  4. No. of Test set    : Show total number of images in test dataset.
 
 <img width="328" alt="image" src="https://github.com/eatrabyo/dads_5001_dash_app_for_ml/assets/92035314/46231a02-d2c0-4e61-b905-f153fb0531f7">
 
 ### 4. Evaluation
 In this part show evaluate results
-  1. Best Model                       : Show the best model which is the highest train score. Model refer from user selecting model
-  2. Accuracy score of the best model : Show score of best model that are train score, validation score and test score
+  1. Best Model: Display the best model from the list of selected models, which has the highest training score.
+  2. Accuracy score of the best model: Display the scores of the best model, including the training score, validation score, and test score.
  
 <img width="330" alt="image" src="https://github.com/eatrabyo/dads_5001_dash_app_for_ml/assets/92035314/1c2a1d72-908b-4c96-97e7-181161f830b4">
 
@@ -60,14 +59,16 @@ The heatmap is constructed using plotly and only the diagonal elements are annot
 
 
 ### 6. Model Performance (Accuracy score)
-Model Performance show about show train score, validation score and test score which refer from from user selecting model
-more information about score :
+The model performance shows the train score, validation score, and test score based on the user-selected model.
+
 1. Train score :  The training score is a metric that indicates how well a machine learning model performs on the training data it was trained on. It measures the degree to which the model has learned and adapted to the training dataset. A high training score suggests that the model has fit the training data well.
     
 2. Validation score : The testing score, also known as the test accuracy or test score, is a metric used to evaluate how well a trained model performs on new, unseen data. It measures the model's ability to generalize and make accurate predictions on data it hasn't encountered during training. The testing score provides insights into how well the model is expected to perform in real-world scenarios.
     
 3. Test score : The validation score is typically used during the model development process to fine-tune the model's hyperparameters. It is calculated by evaluating the model's performance on a separate validation dataset, which is different from both the training and testing datasets. The validation score helps in selecting the best model configuration by comparing the performance of different models or hyperparameter settings. It provides an estimate of how well the model is likely to perform on unseen data.
-    
+
+<img width="626" alt="image" src="https://github.com/eatrabyo/dads_5001_dash_app_for_ml/assets/92035314/e539f565-ea75-4551-99ed-5f75b93b1d7f">
+
 
 ## Credits
 
