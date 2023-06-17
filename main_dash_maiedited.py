@@ -135,12 +135,34 @@ app.layout = dbc.Container(
                 ], width=12)
             ]
         ),
-
+        
         dbc.Row(
             [
-            html.Img(src='data:image/png;base64,{}'.format(thainum_base64), alt='Image')
+                dbc.Col(
+                    html.Div(
+                        style={
+                            'display': 'flex',
+                            'justify-content': 'center',
+                            'align-items': 'center',
+                            'height': '100%',
+                        },
+                        children=[
+                            html.Img(
+                                src='data:image/png;base64,{}'.format(thainum_base64),
+                                alt='Image',
+                                style={
+                                    'max-width': '50%',
+                                    'max-height': 'auto',
+                                    'object-fit': 'contain',
+                                }
+                            )
+                        ]
+                    ),
+                    width=12
+                )
             ]
-                ),
+        ),
+
 
         dbc.Row(
             [
