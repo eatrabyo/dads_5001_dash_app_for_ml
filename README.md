@@ -60,7 +60,14 @@ The heatmap is constructed using plotly and only the diagonal elements are annot
 
 
 ### 6. Model Performance (Accuracy score)
-pls fill information
+Model Performance show about show train score, validation score and test score which refer from from user selecting model
+more information about score :
+1. Train score :  The training score is a metric that indicates how well a machine learning model performs on the training data it was trained on. It measures the degree to which the model has learned and adapted to the training dataset. A high training score suggests that the model has fit the training data well.
+    
+2. Validation score : The testing score, also known as the test accuracy or test score, is a metric used to evaluate how well a trained model performs on new, unseen data. It measures the model's ability to generalize and make accurate predictions on data it hasn't encountered during training. The testing score provides insights into how well the model is expected to perform in real-world scenarios.
+    
+3. Test score : The validation score is typically used during the model development process to fine-tune the model's hyperparameters. It is calculated by evaluating the model's performance on a separate validation dataset, which is different from both the training and testing datasets. The validation score helps in selecting the best model configuration by comparing the performance of different models or hyperparameter settings. It provides an estimate of how well the model is likely to perform on unseen data.
+    
 
 ## Credits
 
