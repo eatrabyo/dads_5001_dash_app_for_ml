@@ -5,7 +5,7 @@ from dash import dcc
 import numpy as np
 from dash.dependencies import Input, Output
 import dash_daq as daq
-from model_maiedited import pipe_setup, fit_model
+from model import pipe_setup, fit_model
 from bar_graph import bar_graph
 from confusion_matrix_fig import confusion_matrix_fig
 import base64
