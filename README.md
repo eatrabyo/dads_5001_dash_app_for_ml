@@ -78,6 +78,12 @@ The model performance shows the train score, validation score, and test score ba
 
 <img width="626" alt="image" src="https://github.com/eatrabyo/dads_5001_dash_app_for_ml/assets/92035314/e539f565-ea75-4551-99ed-5f75b93b1d7f">
 
+## Contributors
+* Itthisak Pratukaew
+* Nattasorn Tanpichai
+* Patchadol Ratanapittayaruk
+* Pinyawat Sabsanhor
+* Suthida Jumlongrasd
 
 ## Credits
 
