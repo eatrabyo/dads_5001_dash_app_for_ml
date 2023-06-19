@@ -86,9 +86,9 @@ def fit_model(model, x, y, num_split, test_size):
 
     cm = confusion_matrix(y_test, test_yhat)
 
-    return model, train_accuracy, test_accuracy, cv_accuracy, cm, x_train, x_test, y_train, y_test
+    return model, train_accuracy, test_accuracy, cv_accuracy, cm, x_train, x_test, y_train, y_test, train_yhat, test_yhat
 
-
+##
 if __name__ == '__main__':
 
     x_kit, y_kit = convert_to_array('data_fr_kittinan/', 28)
@@ -98,6 +98,7 @@ if __name__ == '__main__':
 
     model_lst = ['XGB Classifier', 'Logistic Regression',
                  'Random Forest', 'Neural Network', 'Extra Trees Classifier']
+    
     best_model = None
     best_accuracy = 0.0
     best_model_name = ""
@@ -106,15 +107,22 @@ if __name__ == '__main__':
 
     for m in model_lst:
         clf = pipe_setup(m)
-        fitted_model, train_ac, test_ac, cv_ac, cm, x_train, x_test, y_train, y_test = fit_model(
+        fitted_model, train_ac, test_ac, cv_ac, cm, x_train, x_test, y_train, y_test, train_yhat, test_yhat= fit_model(
             clf, X, y, 5, 0.3)
+        
+## input
+## cm -> array of y pred y true
+## numsplit (5), 0.3 (test size)
 
         if train_ac > best_accuracy:
             best_model = fitted_model
-            best_accuracy = train_ac
+            best_accuracy_train = train_ac
+            best_accuracy_cv = cv_ac
+            best_accuracy_test = test_ac
             best_model_name = m
             best_cm = cm
 
+# append model name 
         model_accuracies.append((m, train_ac, cv_ac, test_ac))
 
     print(model_accuracies)
@@ -124,3 +132,28 @@ if __name__ == '__main__':
     print(model_accuracies[0][2])
 
     print(model_lst)
+
+    #%% ROC-AUC Curve
+
+    from scipy import interp
+    import matplotlib.pyplot as plt
+    from sklearn.metrics import roc_curve, auc
+    # Learn to predict each class against the other
+
+
+    n_classes = 10 # number of class
+
+
+
+
+    # Compute ROC curve and ROC area for each class
+    fpr = dict()
+    tpr = dict()
+    roc_auc = dict()
+    for i in range(n_classes):
+        fpr[i], tpr[i], _ = roc_curve(y_test[:, i], train_yhat[:, i], )
+        roc_auc[i] = auc(fpr[i], tpr[i])
+
+    # Compute micro-average ROC curve and ROC area
+    fpr["micro"], tpr["micro"], _ = roc_curve(y_test.ravel(), train_yhat.ravel())
+    roc_auc["micro"] = auc(fpr["micro"], tpr["micro"])
